@@ -30,3 +30,4 @@ Surprisingly easy to get started. Created a new route for articles and went from
 
 - In production I would have separate repository for all content that should be pre-rendered
 - Internalionalization would be interesting to implement
+- Structuring content is key. I have implemented something very simple here but much more structure is needed in order to show other, tags and vary the layout of articles
