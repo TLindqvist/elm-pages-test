@@ -1,5 +1,6 @@
-module Route.Index exposing (ActionData, Data, Model, Msg, route)
+module Route.Articles exposing (ActionData, Data, Model, Msg, route)
 
+import Article exposing (ArticleMetadata, loadMetadata)
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
 import Head
@@ -27,16 +28,15 @@ type alias RouteParams =
     {}
 
 
-type alias Data =
-    { message : String
-    }
-
-
 type alias ActionData =
     {}
 
 
-route : StatelessRoute RouteParams Data ActionData
+type alias Data =
+    List ArticleMetadata
+
+
+route : StatelessRoute RouteParams (List ArticleMetadata) ActionData
 route =
     RouteBuilder.single
         { head = head
@@ -45,15 +45,13 @@ route =
         |> RouteBuilder.buildNoState { view = view }
 
 
-data : BackendTask FatalError Data
+data : BackendTask FatalError (List ArticleMetadata)
 data =
-    BackendTask.succeed Data
-        |> BackendTask.andMap
-            (BackendTask.succeed "Hello!")
+    loadMetadata
 
 
 head :
-    App Data ActionData RouteParams
+    App (List ArticleMetadata) ActionData RouteParams
     -> List Head.Tag
 head app =
     Seo.summary
@@ -73,16 +71,14 @@ head app =
 
 
 view :
-    App Data ActionData RouteParams
+    App (List ArticleMetadata) ActionData RouteParams
     -> Shared.Model
     -> View (PagesMsg Msg)
 view app shared =
     { title = "elm-pages is running"
     , body =
         [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
-        , Html.p []
-            [ Html.text <| "The message is: " ++ app.data.message
-            ]
-        , Html.a [ Attr.href "articles" ] [ Html.text "View articles" ]
+        , Html.ul []
+            (List.map (\article -> Html.li [] [ Html.a [ Attr.href ("articles/" ++ article.title) ] [ Html.text article.title ] ]) app.data)
         ]
     }
